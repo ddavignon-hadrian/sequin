@@ -8,8 +8,13 @@ import Config
 
 self_hosted = System.get_env("SELF_HOSTED", "0") in ~w(1 true)
 
+# Treat an empty SENTRY_DSN as unset (nil) so the image builds and runs without Sentry configured.
 config :sentry,
-  dsn: System.get_env("SENTRY_DSN"),
+  dsn:
+    case System.get_env("SENTRY_DSN") do
+      "" -> nil
+      dsn -> dsn
+    end,
   release: System.get_env("RELEASE_VERSION")
 
 config :sequin, Sequin.ConsoleLogger, drop_metadata_keys: [:mfa]
